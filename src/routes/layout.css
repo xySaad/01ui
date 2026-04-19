@@ -1,0 +1,51 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@import 'shadcn-svelte/tailwind.css';
+@import '@fontsource-variable/inter';
+
+@custom-variant dark (&:is(.dark *));
+@plugin '@tailwindcss/forms';
+@plugin '@tailwindcss/typography';
+
+:root {
+	--bg-3: var(--color-blue-900, oklch(37.9% 0.146 265.522));
+	--primary: hsl(0, 0%, 0%);
+	--secondary: hsl(204, 100%, 11%);
+}
+
+html {
+	color: white;
+	background: var(--primary);
+	height: 100vh;
+	overflow: hidden;
+
+	&:after {
+		z-index: -1;
+		content: '';
+		position: absolute;
+		top: 0;
+		width: 100%;
+		height: 100%;
+		background: url('/src/lib/assets/waves.svg');
+		background-size: cover;
+	}
+
+	body {
+		overflow-y: scroll;
+		overflow-x: hidden;
+		width: 100vw;
+		height: 100%;
+		display: flex;
+		flex-direction: column;
+		gap: 20px;
+	}
+}
+
+input {
+	background: transparent;
+	border-radius: 6px;
+}
+
+select {
+	background: var(--secondary);
+}

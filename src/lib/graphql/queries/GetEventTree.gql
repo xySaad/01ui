@@ -1,0 +1,25 @@
+query GetEventTree {
+	event(order_by: { id: asc }) {
+		id
+		path
+		parentId
+		startAt
+		endAt
+		object {
+			name
+			type
+		}
+		usersRelation(order_by: { createdAt: asc }) {
+			createdAt
+			level
+			publicUser {
+				githubId
+				id
+				login
+				firstName
+				lastName
+				avatarUrl
+			}
+		}
+	}
+}
