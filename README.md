@@ -1,6 +1,6 @@
 # Overview
 
-Zone01Oujda graphql states
+Community made web UI for 01edu
 
 # Technologies
 
