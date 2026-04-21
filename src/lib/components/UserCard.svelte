@@ -1,5 +1,7 @@
 <script lang="ts">
+	import { recordsMap } from '$lib/state/users';
 	import type { User } from '$lib/types/user';
+	import { formatDate } from '$lib/utils/time';
 
 	let { user, userLevel }: { user: User; userLevel: number } = $props();
 </script>
@@ -67,7 +69,14 @@
 			<line x1="15" y1="9" x2="9" y2="15" />
 			<line x1="9" y1="9" x2="15" y2="15" />
 		</svg>
-		<span>Unavailable for audit</span>
+		{#if user.id}
+			{@const endAt = recordsMap.get(user.id)}
+			{#if endAt}
+				<span>Unavailable until {formatDate(endAt.toString())}</span>
+			{:else}
+				<span>Unavailable for audits</span>
+			{/if}
+		{/if}
 	</div>
 </article>
 

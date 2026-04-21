@@ -1,13 +1,17 @@
 query GetUsers {
-  user_public_view {
-    id
-    login
-    avatarUrl
-    firstName
-    lastName
-    canBeAuditor
-    canAccessPlatform
-    campus
-    githubId
-  }
+	user_public_view {
+		id
+		login
+		avatarUrl
+		firstName
+		lastName
+		canBeAuditor
+		canAccessPlatform
+		campus
+		githubId
+	}
+	record_public_view(where: { endAt: { _is_null: false } }) {
+		userId
+		endAt
+	}
 }
