@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { resolve } from '$app/paths';
 	import { recordsMap } from '$lib/state/users';
 	import type { EventUserRel } from '$lib/types/events';
 	import type { User } from '$lib/types/user';
@@ -34,7 +35,9 @@
 
 		<div class="user-meta">
 			<div class="title-row">
-				<h2 class="login">{user.login}</h2>
+				<h2 class="login">
+					<a href={resolve(`/users/${user.id}`)} class="login-link">{user.login}</a>
+				</h2>
 				{#if level}
 					<span class="user-level" data-level={level} data-tooltip="Level {level}">
 						{level}
@@ -54,6 +57,8 @@
 			<dd>{user.lastName}</dd>
 		</div>
 		<div>
+			<dt>last online</dt>
+			<dd>-</dd>
 			<dt>audit ratio</dt>
 			<dd>{auditRatio ? Number(auditRatio).toFixed(2) : '_'}</dd>
 		</div>
@@ -88,6 +93,17 @@
 </article>
 
 <style>
+	.login-link {
+		color: inherit;
+		text-decoration: none;
+
+		&:hover {
+			color: hsl(210, 70%, 75%);
+			text-decoration: underline;
+			text-underline-offset: 3px;
+			text-decoration-thickness: 1px;
+		}
+	}
 	.unavailable-banner {
 		display: flex;
 		align-items: center;
