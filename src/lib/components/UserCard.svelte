@@ -1,9 +1,10 @@
 <script lang="ts">
 	import { recordsMap } from '$lib/state/users';
 	import type { User } from '$lib/types/user';
-	import { formatDate } from '$lib/utils/time';
+	import { formatDate, timeUntil } from '$lib/utils/time';
 
-	let { user, userLevel }: { user: User; userLevel: number } = $props();
+	let { user, userLevel, auditRatio }: { user: User; userLevel: number; auditRatio: number } =
+		$props();
 </script>
 
 <article class="user-card">
@@ -33,7 +34,7 @@
 			<div class="title-row">
 				<h2 class="login">{user.login}</h2>
 				{#if userLevel}
-					<span class="user-level" data-level={userLevel}>
+					<span class="user-level" data-level={userLevel} data-tooltip="Level {userLevel}">
 						{userLevel}
 					</span>
 				{/if}
@@ -46,11 +47,13 @@
 		<div>
 			<dt>firstName</dt>
 			<dd>{user.firstName}</dd>
-		</div>
 
-		<div>
 			<dt>lastName</dt>
 			<dd>{user.lastName}</dd>
+		</div>
+		<div>
+			<dt>audit ratio</dt>
+			<dd>{auditRatio.toFixed(2)}</dd>
 		</div>
 	</dl>
 	<div class="unavailable-banner" data-visible={user.canAccessPlatform && !user.canBeAuditor}>
@@ -72,7 +75,9 @@
 		{#if user.id}
 			{@const endAt = recordsMap.get(user.id)}
 			{#if endAt}
-				<span>Unavailable until {formatDate(endAt.toString())}</span>
+				<span data-tooltip={'Unavailable until ' + formatDate(endAt)}>
+					{timeUntil(endAt.toString())}
+				</span>
 			{:else}
 				<span>Unavailable for audits</span>
 			{/if}
@@ -227,18 +232,20 @@
 	.details {
 		margin-top: 1rem;
 		font-size: 0.875rem;
-	}
+		display: flex;
+		justify-content: space-between;
 
-	.details dt {
-		color: hsl(215, 15%, 45%);
-		font-size: 0.72rem;
-		text-transform: uppercase;
-		letter-spacing: 0.04em;
-	}
+		dt {
+			color: hsl(215, 15%, 45%);
+			font-size: 0.72rem;
+			text-transform: uppercase;
+			letter-spacing: 0.04em;
+		}
 
-	.details dd {
-		color: hsl(210, 15%, 78%);
-		font-weight: 500;
+		dd {
+			color: hsl(210, 15%, 78%);
+			font-weight: 500;
+		}
 	}
 
 	/* .labels {

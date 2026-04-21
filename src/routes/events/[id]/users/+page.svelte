@@ -13,7 +13,8 @@
 		return event?.usersRelation
 			.map((userRel) => {
 				const user = usersMap.get(userRel.userId);
-				if (user) return { ...user, level: userRel.level };
+				if (user)
+					return { ...user, level: userRel.level, auditRatio: Number(userRel.userAuditRatio) };
 			})
 			.filter(
 				(u): u is NonNullable<typeof u> =>
@@ -32,20 +33,20 @@
 	<div class="usersList">
 		{#each filteredUsers as user (user?.id)}
 			<div class="user">
-				<UserCard {user} userLevel={user.level} />
+				<UserCard {user} userLevel={user.level} auditRatio={user.auditRatio} />
 			</div>
 		{/each}
 	</div>
 </div>
 
 <style>
-.search {
-	border-radius: 12px;
-	padding: 5px 12px;
-	width: 200px;
-	max-width: 600px;
-	margin-right: auto;
-}
+	.search {
+		border-radius: 12px;
+		padding: 5px 12px;
+		width: 200px;
+		max-width: 600px;
+		margin-right: auto;
+	}
 	.eventUsers {
 		padding: 20px;
 		display: flex;
@@ -75,5 +76,6 @@
 
 	.user {
 		min-width: 0;
+		display: contents;
 	}
 </style>
