@@ -1,9 +1,8 @@
 <script lang="ts">
 	import EventCard from '$lib/components/EventCard.svelte';
+	import Carousel from './Carousel.svelte';
 	import { eventsMap } from '$lib/state/events';
 	import type { Event } from '$lib/types/events';
-	import type { EmblaOptionsType, EmblaPluginType } from 'embla-carousel';
-	import emblaCarouselSvelte from 'embla-carousel-svelte';
 
 	const { events }: { events: Event[] } = $props();
 
@@ -18,30 +17,26 @@
 		});
 		return eventsByPathMap;
 	};
-
-	const emblaParams: { options: EmblaOptionsType; plugins: EmblaPluginType[] } = {
-		options: { dragFree: true, containScroll: 'keepSnaps' },
-		plugins: []
-	};
 </script>
 
 <div class="eventsList">
 	{#each groupRootEvents() as [path, group] (path)}
-		<header>{path}</header>
-		<div class="embla" use:emblaCarouselSvelte={emblaParams}>
-			<div class="embla__container">
+		<section class="group-section">
+			<header class="group-header">{path}</header>
+
+			<Carousel>
 				{#each group as { id } (id)}
 					{@const event = eventsMap.get(id)}
-					{#if event}
-						<div class="embla__slide">
+					<div class="event embla__slide">
+						{#if event}
 							<EventCard {event} />
-						</div>
-					{:else}
-						Events #{id} Not Found
-					{/if}
+						{:else}
+							Events #{id} Not Found
+						{/if}
+					</div>
 				{/each}
-			</div>
-		</div>
+			</Carousel>
+		</section>
 	{/each}
 </div>
 
@@ -52,27 +47,20 @@
 		gap: 10px;
 	}
 
-	.embla {
-		/* overflow: scroll; */
-		user-select: none;
-		cursor: grab;
-
-		&:active {
-			cursor: grabbing;
-		}
-	}
-
-	.embla__container {
+	.group-section {
 		display: flex;
-		gap: 10px;
+		flex-direction: column;
+		gap: 8px;
 	}
 
-	.embla__slide {
-		flex: 0 0 250px;
-		min-width: 0;
-		background: none;
-		border: none;
-		padding: 0;
-		text-align: left;
+	.group-header {
+		font-size: inherit;
+		font-weight: inherit;
+		margin: 0;
+	}
+
+	.event {
+		min-width: 300px;
+		flex: 0 0 300px;
 	}
 </style>
