@@ -24,7 +24,7 @@
 	const links: Link[] = [
 		{ href: '/events', icon: Event, text: 'Events' },
 		{ href: '/map', icon: Gite, text: 'Map' },
-		{ href: '/leaderboard', icon: Leaderboard, text: 'Leaderboard' }
+		{ href: '/events', icon: Leaderboard, text: 'Leaderboard' }
 	];
 </script>
 
