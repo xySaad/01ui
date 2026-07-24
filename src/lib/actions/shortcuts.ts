@@ -1,4 +1,4 @@
-export function ctrlAltF(node: HTMLInputElement) {
+export function ctrlAltF(node: HTMLElement) {
 	function handleKeydown(e: KeyboardEvent) {
 		if (e.ctrlKey && e.key === 'f' && e.altKey) {
 			e.preventDefault();

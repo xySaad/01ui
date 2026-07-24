@@ -23,13 +23,13 @@
 
 <section class="overview">
 	<div class="badges">
-		{#if attrs.type === 'project' || attrs.type === 'exercise'}
+		{#if attrs.type === 'project' || attrs.type === 'raid' || attrs.type === 'exercise'}
 			{@const { baseXp, language } = attrs.attrs}
 			<Badge tooltip="language"><Function /> {language}</Badge>
 			<Badge tooltip="XP"><BoltBoost /> {baseXp ? formatBytes(baseXp) : '-'}</Badge>
 		{/if}
 
-		{#if attrs.type === 'project'}
+		{#if attrs.type === 'project' || attrs.type === 'raid'}
 			{@const { requiredAuditRatio, groupMax, groupMin } = attrs.attrs}
 			<Badge tooltip="required audit ratio"><DataUsage /> {requiredAuditRatio}</Badge>
 			<Badge tooltip="group size"><Groups /> {groupMin} / {groupMax}</Badge>

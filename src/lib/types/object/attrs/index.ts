@@ -4,6 +4,7 @@ import { ExerciseAttrsSchema } from './exercise';
 
 export const ObjectAttrsSchema = z.discriminatedUnion('type', [
 	z.object({ type: z.literal('project'), attrs: ProjectAttrsSchema }),
+	z.object({ type: z.literal('raid'), attrs: ProjectAttrsSchema }),
 	z.object({ type: z.literal('exercise'), attrs: ExerciseAttrsSchema })
 ]);
 
