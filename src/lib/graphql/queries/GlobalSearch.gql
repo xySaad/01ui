@@ -1,0 +1,54 @@
+query GlobalSearch($search: String!) {
+	users: user_public_view(
+		where: {
+			_or: [
+				{ login: { _ilike: $search } }
+				{ firstName: { _ilike: $search } }
+				{ lastName: { _ilike: $search } }
+			]
+		}
+		limit: 10
+	) {
+		id
+		login
+		avatarUrl
+		firstName
+		lastName
+		campus
+	}
+	objects: object(
+		where: {
+			name: { _ilike: $search }
+		}
+		limit: 10
+	) {
+		id
+		name
+		type
+		campus
+		paths {
+			path
+		}
+	}
+	events: event(
+		where: {
+			_or: [
+				{ description: { _ilike: $search } }
+				{ object: { name: { _ilike: $search } } }
+			]
+		}
+		limit: 10
+	) {
+		id
+		description
+		startAt
+		endAt
+		campus
+		objectId
+		object {
+			id
+			name
+			type
+		}
+	}
+}

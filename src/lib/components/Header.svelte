@@ -2,6 +2,7 @@
 	import { resolve } from '$app/paths';
 	import zone01oujda from '$lib/assets/zone01oujda.png';
 	import AssignedAuditors from '$lib/components/audit/AssignedAudits.svelte';
+	import GlobalSearch from '$lib/components/search/GlobalSearch.svelte';
 	import User from './User.svelte';
 </script>
 
@@ -10,6 +11,7 @@
 		<img src={zone01oujda} alt="zone01oujda-logo" id="zone01oujda-logo" />
 	</a>
 	<div class="header-actions">
+		<GlobalSearch />
 		<AssignedAuditors />
 		<User />
 	</div>
