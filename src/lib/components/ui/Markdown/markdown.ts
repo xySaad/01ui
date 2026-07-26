@@ -1,47 +1,34 @@
-import type { Token } from 'marked';
+import type { Nodes as HastNodes } from 'hast';
+import { fromHtml } from 'hast-util-from-html';
+import { toHtml } from 'hast-util-to-html';
+import DOMPurify from 'dompurify';
 
-export const resolveIfRelative = (url: string, baseUrl: string) => {
+function isAbsoluteUrl(url: string): boolean {
 	try {
 		new URL(url);
-		return url;
+		return true;
 	} catch {
-		const resolvedUrl = new URL(url, baseUrl);
-		return resolvedUrl.toString();
+		return false;
 	}
-};
+}
+//TODO: use AST token to identify URLs instead of hardcoding src and href properties
+export function resolveRelativeUrl(node: HastNodes, baseURL: string): HastNodes {
+	if (node.type !== 'element') return node;
 
-const parser = new DOMParser();
-//TODO: implement an AST based solution instead of parsing raw DOM
-//TODO: implement a spec compliant solution instead of hardcoding 'img' and 'a'
-export function relativeUrlResolver(baseUrl: string) {
-	return function walkTokens(token: Token) {
-		if (token.type === 'image' || token.type === 'link') {
-			token.href = resolveIfRelative(token.href, baseUrl);
-			return;
-		}
+	const urlKey = node.properties.href ? 'href' : node.properties.src ? 'src' : null;
+	if (urlKey === null) return node;
 
-		if (token.type === 'html') {
-			const parsedDocument = parser.parseFromString(token.raw, 'text/html');
-			const elementsList = parsedDocument.body.querySelectorAll('img,a');
-			const changes = [...elementsList].map((node) => {
-				if (node instanceof HTMLImageElement) {
-					const src = node.getAttribute('src');
-					if (src) node.src = resolveIfRelative(src, baseUrl);
-					return true;
-				}
-				if (node instanceof HTMLAnchorElement) {
-					const href = node.getAttribute('href');
-					if (href) node.href = resolveIfRelative(href, baseUrl);
-					return true;
-				}
-				return false;
-			});
+	const url = node.properties[urlKey];
+	if (url === undefined) return node;
 
-			if (changes.some((c) => c)) {
-				const raw = parsedDocument.body.innerHTML;
-				token.raw = raw;
-				token.text = raw;
-			}
-		}
-	};
+	const resolvedURL = isAbsoluteUrl(url) ? url : new URL(url, baseURL).toString();
+	node.properties[urlKey] = resolvedURL;
+	return node;
+}
+
+export function sanitizeNode(node: HastNodes) {
+	const dirty = toHtml(node, { allowDangerousHtml: true });
+	const clean = DOMPurify.sanitize(dirty);
+	const tree = fromHtml(clean, { fragment: true });
+	return tree;
 }

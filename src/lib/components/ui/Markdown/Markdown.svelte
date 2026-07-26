@@ -1,13 +1,12 @@
 <script lang="ts" generics="T extends Record<string, unknown>">
-	import SafeHtml from '$lib/components/shared/SafeHtml.svelte';
-	import Suspend from '$lib/components/shared/Suspend.svelte';
 	import 'github-markdown-css/github-markdown.css';
-	import { Marked } from 'marked';
-	import markedKatex from 'marked-katex-extension';
+	import { fromMarkdown } from 'mdast-util-from-markdown';
+	import { toHast } from 'mdast-util-to-hast';
 	import type { Snippet } from 'svelte';
-	import { relativeUrlResolver } from './markdown';
 	import MarkdownMenu, { type Options } from './MarkdownMenu.svelte';
-	const markdownParser = new Marked(markedKatex({ throwOnError: false }));
+	import MarkdownNode from './MarkdownNode.svelte';
+	import { resolveRelativeUrl } from './markdown';
+	import type { Nodes as HastNodes } from 'hast';
 
 	type Props = {
 		fileName?: string;
@@ -25,27 +24,28 @@
 
 	const markdown = $derived.by(async () => {
 		const rawSource = raw ?? (await fetchMarkdown(url));
-		const walkTokens = inputURL ? relativeUrlResolver(inputURL) : null;
-		return markdownParser.parse(rawSource, { walkTokens });
+		const tree = fromMarkdown(rawSource);
+		return toHast(tree, { allowDangerousHtml: true });
 	});
+
+	const visitor = (node: HastNodes) => {
+		if (inputURL) return resolveRelativeUrl(node, inputURL);
+		else return node;
+	};
 	let maxWidth = $state(100);
 </script>
 
 <section>
 	<div class="title">
 		{@render Title?.()}
-		<Suspend data={markdown}>
-			{#snippet children(source)}
-				<MarkdownMenu bind:maxWidth {fileName} {source} {url} {...options} />
-			{/snippet}
-		</Suspend>
+		<MarkdownMenu bind:maxWidth {fileName} {url} {...options} />
 	</div>
 
 	<div class="markdown-body" style:max-width="{maxWidth}%">
 		{#await markdown}
 			Loading markdown...
-		{:then source}
-			<SafeHtml html={source} />
+		{:then root}
+			<MarkdownNode trustUnsafeHTML={true} node={root} {visitor} />
 		{:catch}
 			Failed to load markdown.
 		{/await}

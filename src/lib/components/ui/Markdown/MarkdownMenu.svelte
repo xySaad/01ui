@@ -3,7 +3,6 @@
 		fileName?: string;
 		url: string;
 		maxWidth: number;
-		source: string;
 	}
 	type OptionKey<T extends Record<string, unknown>, P extends string> = Exclude<
 		keyof T,
@@ -27,9 +26,14 @@
 	import MoreVert from '$lib/assets/svg/more-vert.svelte';
 	import RuleSettings from '$lib/assets/svg/rule-settings.svelte';
 	import type { Snippet } from 'svelte';
+	import Suspend from '$lib/components/shared/Suspend.svelte';
 
-	let { fileName, url, maxWidth = $bindable(), source, ...options }: Props & Options<T> = $props();
+	let { fileName, url, maxWidth = $bindable(), ...options }: Props & Options<T> = $props();
 	let isRangeResize = $state(true);
+	const downloadRawMarkdown = async () => {
+		const resp = await fetch(url);
+		return resp.text();
+	};
 </script>
 
 <div class="menu">
@@ -41,7 +45,11 @@
 			<DownloadButton {url} {fileName} />
 		{/snippet}
 		{#snippet Copy()}
-			<CopyButton text={source} />
+			<Suspend data={downloadRawMarkdown()}>
+				{#snippet children(raw)}
+					<CopyButton text={raw} />
+				{/snippet}
+			</Suspend>
 		{/snippet}
 		{#snippet Resize()}
 			<div class="resize">

@@ -68,14 +68,20 @@
 		"vitest": "^4.1.4"
 	},
 	"dependencies": {
+		"@types/mdast": "^4.0.4",
 		"dompurify": "^3.4.0",
 		"embla-carousel": "^8.6.0",
 		"flowbite-svelte": "^1.33.1",
 		"github-markdown-css": "^5.9.0",
 		"graphql-request": "^7.4.0",
+		"hast-util-from-html": "^2.0.3",
+		"hast-util-to-html": "^9.0.5",
+		"hast-util-to-string": "^3.0.1",
 		"jwt-decode": "^4.0.0",
-		"marked": "^18.0.6",
-		"marked-katex-extension": "^5.1.10",
+		"mdast-util-from-markdown": "^2.0.3",
+		"mdast-util-to-hast": "^13.2.1",
+		"mdast-util-to-markdown": "^2.1.2",
+		"npm": "^11.18.0",
 		"zod": "^4.4.3"
 	}
 }
