@@ -4,32 +4,45 @@
 	import UserAvatar from '$lib/components/image/UserAvatar.svelte';
 	import Divider from '$lib/components/shared/Divider.svelte';
 	import Card from '$lib/components/ui/Card.svelte';
-	import type { GetObjectGroupsQuery } from '$lib/graphql/generated';
+	import { Group_Status_Enum, type GetObjectGroupsQuery } from '$lib/graphql/generated';
 	import CardHeader from '../Card/CardHeader.svelte';
 	import Badge from '../ui/Badge.svelte';
+	import PrivacyTip from '$lib/assets/svg/privacy-tip.svelte';
+	import Hail from '$lib/assets/svg/hail.svelte';
+	import DoneOutline from '$lib/assets/svg/done_outline.svelte';
+	import IncompleteCircle from '$lib/assets/svg/incomplete-circle.svelte';
+	const statusIconMap = {
+		[Group_Status_Enum.Setup]: Hail,
+		[Group_Status_Enum.Working]: IncompleteCircle,
+		[Group_Status_Enum.Audit]: PrivacyTip,
+		[Group_Status_Enum.Finished]: DoneOutline
+	};
 
 	interface Props {
 		group: GetObjectGroupsQuery['object'][number]['groups'][number];
 		title?: string;
 	}
 
-	const { group, title: groupTitle }: Props = $props();
+	const { group, title: groupTitle = '-' }: Props = $props();
 
+	const StatusIcon = $derived(statusIconMap[group.status]);
 	const memberLabel = $derived(group.members.length === 1 ? 'member' : 'members');
 </script>
 
 <Card padding="sm">
-	<CardHeader>
-		{#snippet icon()}
-			<GroupsIcon />
-		{/snippet}
-		{#snippet title()}
-			<div class="title">
-				{groupTitle}
-				<Badge>{group.members.length} {memberLabel}</Badge>
-			</div>
-		{/snippet}
-	</CardHeader>
+	<div class="headerWrap" data-tooltip={groupTitle}>
+		<CardHeader>
+			{#snippet icon()}
+				<GroupsIcon />
+			{/snippet}
+			{#snippet title()}
+				<div class="title">
+					<div class="text">{groupTitle}</div>
+					<Badge>{group.members.length} {memberLabel}</Badge>
+				</div>
+			{/snippet}
+		</CardHeader>
+	</div>
 
 	<Divider margin="0 0 0 auto" />
 
@@ -37,9 +50,10 @@
 		{#each group.members as member (member.user?.id)}
 			{@const user = member.user}
 			{@const isCaptain = user?.id === group.captain?.id}
-			<div class="member" data-tooltip={member.user?.login}>
+			{@const memberTooltip = `${member.user?.login}${isCaptain ? ' (captain)' : ''}`}
+			<div class="member" data-tooltip={memberTooltip}>
 				{#if isCaptain}
-					<div class="crown" class:visible={isCaptain}>
+					<div class="crown">
 						<Crown />
 					</div>
 				{/if}
@@ -53,15 +67,29 @@
 			</div>
 		{/each}
 	</div>
+	<Divider />
+	<div class="status" data-tooltip="status">
+		{group.status}
+		<StatusIcon />
+	</div>
 </Card>
 
 <style>
-	.title {
-		display: flex;
-		justify-content: space-between;
-		flex-wrap: wrap;
-		gap: 10px;
+	.headerWrap {
+		width: 100%;
+		.title {
+			display: flex;
+			justify-content: space-between;
+			gap: 10px;
+			width: 100%;
+
+			.text {
+				overflow: hidden;
+				text-overflow: ellipsis;
+			}
+		}
 	}
+
 	.members {
 		display: flex;
 		gap: 5px;
@@ -79,14 +107,18 @@
 				height: 50px;
 			}
 			.crown {
-				visibility: hidden;
 				color: var(--success);
-				display: none;
-				&.visible {
-					display: block;
-					visibility: visible;
-				}
 			}
 		}
+	}
+	.status {
+		margin-left: auto;
+		display: flex;
+		gap: 10px;
+		align-items: center;
+		justify-content: end;
+		font-size: 0.875rem;
+		font-weight: 600;
+		color: var(--text-value);
 	}
 </style>
