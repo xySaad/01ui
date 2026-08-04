@@ -48,27 +48,41 @@
 	let currentIndex = $state(0);
 </script>
 
-{@render Title()}
-<Suspend data={getAuditMarkdowns()}>
-	{#snippet children({ pre, audit, post })}
-		<AuditCheckboxList title="Pre-Audit" bind:currentIndex questions={pre.map((v) => v.content)} />
-		<AuditCheckboxList
-			title="Audit"
-			bind:currentIndex
-			questions={audit ?? []}
-			lastIndex={pre.length}
-		/>
-		{@const auditLength = audit?.length ?? 0}
-		<AuditCheckboxList
-			title="Post-Audit"
-			bind:currentIndex
-			questions={post.map((v) => v.content)}
-			lastIndex={pre.length + auditLength}
-		/>
-		{#if currentIndex > pre.length + auditLength + post.length - 1}
-			<Button style="color: var(--success); background: var(--success-bg);">Validate</Button>
-		{:else}
-			<Button style="color: var(--error); background: var(--error-bg);">Fail</Button>
-		{/if}
-	{/snippet}
-</Suspend>
+<article class="validation">
+	{@render Title()}
+	<section class="checklist">
+		<Suspend data={getAuditMarkdowns()}>
+			{#snippet children({ pre, audit, post })}
+				{#if pre.length > 0}
+					<AuditCheckboxList
+						title="Pre-Audit"
+						bind:currentIndex
+						questions={pre.map((v) => v.content)}
+					/>
+				{/if}
+				{#if audit}
+					<AuditCheckboxList
+						title="Audit"
+						bind:currentIndex
+						questions={audit}
+						lastIndex={pre.length}
+					/>
+				{/if}
+				{@const auditLength = audit?.length ?? 0}
+				{#if post.length > 0}
+					<AuditCheckboxList
+						title="Post-Audit"
+						bind:currentIndex
+						questions={post.map((v) => v.content)}
+						lastIndex={pre.length + auditLength}
+					/>
+				{/if}
+				{#if currentIndex > pre.length + auditLength + post.length - 1}
+					<Button style="color: var(--success); background: var(--success-bg);">Validate</Button>
+				{:else}
+					<Button style="color: var(--error); background: var(--error-bg);">Fail</Button>
+				{/if}
+			{/snippet}
+		</Suspend>
+	</section>
+</article>
