@@ -12,10 +12,13 @@
 	type Props = {
 		fileName?: string;
 		Title?: Snippet;
+		Menu?: Snippet;
+		width?: string;
 		src: { raw: string; url?: never } | { raw?: never; url: string };
 	};
 
-	const { src, fileName, Title, ...options }: Props & Options<T, keyof Props> = $props();
+	const { src, fileName, Title, Menu, width, ...options }: Props & Options<T, keyof Props> =
+		$props();
 	const { raw, url: inputURL } = $derived(src);
 	const url = $derived(inputURL ?? URL.createObjectURL(new Blob([raw])));
 	const fetchMarkdown = async (url: string) => {
@@ -31,14 +34,18 @@
 	let maxWidth = $state(100);
 </script>
 
-<section>
+<section style:width>
 	<div class="title">
 		{@render Title?.()}
-		<Suspend data={markdown}>
-			{#snippet children(source)}
-				<MarkdownMenu bind:maxWidth {fileName} {source} {url} {...options} />
-			{/snippet}
-		</Suspend>
+		{#if Menu}
+			{@render Menu()}
+		{:else}
+			<Suspend data={markdown}>
+				{#snippet children(source)}
+					<MarkdownMenu bind:maxWidth {fileName} {source} {url} {...options} />
+				{/snippet}
+			</Suspend>
+		{/if}
 	</div>
 
 	<div class="markdown-body" style:max-width="{maxWidth}%">

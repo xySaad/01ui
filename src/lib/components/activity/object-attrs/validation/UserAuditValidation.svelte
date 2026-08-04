@@ -1,10 +1,13 @@
 <script lang="ts">
-	import Markdown from '$lib/components/ui/Markdown/Markdown.svelte';
 	import Suspend from '$lib/components/shared/Suspend.svelte';
+	import Button from '$lib/components/ui/Button.svelte';
 	import { Client } from '$lib/graphql/client';
 	import { GetValidationMarkdownsDocument } from '$lib/graphql/generated';
 	import type { UserAuditValidation } from '$lib/types/object/attrs/validation';
 	import type { Snippet } from 'svelte';
+	import AuditCheckboxList from './AuditCheckboxList.svelte';
+	const QUESTION_PREFIX = '#'.repeat(6);
+	const isQuestion = (line: string) => line.startsWith(QUESTION_PREFIX);
 
 	interface Props {
 		validation: UserAuditValidation;
@@ -12,30 +15,74 @@
 		Title: Snippet;
 	}
 	const { validation, fileName, Title }: Props = $props();
+	const { form, preQuestions, postQuestions } = $derived(validation);
 
-	const generateMarkdownData = async (validation: UserAuditValidation) => {
-		const { form, preQuestions, postQuestions } = validation;
-		// await new Promise((res) => setTimeout(res, 100000));
+	const questionsFromMarkdown = (markdown: string) => {
+		const questions: string[] = [''];
+
+		for (const line of markdown.split('\n')) {
+			const index = questions.length - 1;
+			if (questions[index] === undefined) questions[index] = line + '\n';
+			else questions[index] += line + '\n';
+
+			if (isQuestion(line)) questions.push('');
+		}
+		questions.length -= 1; // remove last empty line
+		return questions;
+	};
+
+	const getAuditMarkdowns = async () => {
 		const { pre, post } = await Client.request(GetValidationMarkdownsDocument, {
 			pre: preQuestions ?? [],
 			post: postQuestions ?? []
 		});
 
-		const preData = '## Pre\n' + pre.map((md) => md.content).join('\n');
-		const postData = '## Post\n' + post.map((md) => md.content).join('\n');
-
-		const data = [preData, '', postData];
 		if (form) {
 			const formResp = await fetch(`https://learn.zone01oujda.ma${form}`);
-			const formData = await formResp.text();
-			data[1] = '## General\n' + formData;
+			const audit = await formResp.text();
+			return { pre, audit: questionsFromMarkdown(audit), post };
 		}
-		return data.join('\n');
+		return { pre, post };
 	};
+
+	let currentIndex = $state(0);
 </script>
 
-<Suspend data={generateMarkdownData(validation)}>
-	{#snippet children(markdown)}
-		<Markdown {fileName} src={{ raw: markdown }} {Title} />
-	{/snippet}
-</Suspend>
+<article class="validation">
+	{@render Title()}
+	<section class="checklist">
+		<Suspend data={getAuditMarkdowns()}>
+			{#snippet children({ pre, audit, post })}
+				{#if pre.length > 0}
+					<AuditCheckboxList
+						title="Pre-Audit"
+						bind:currentIndex
+						questions={pre.map((v) => v.content)}
+					/>
+				{/if}
+				{#if audit}
+					<AuditCheckboxList
+						title="Audit"
+						bind:currentIndex
+						questions={audit}
+						lastIndex={pre.length}
+					/>
+				{/if}
+				{@const auditLength = audit?.length ?? 0}
+				{#if post.length > 0}
+					<AuditCheckboxList
+						title="Post-Audit"
+						bind:currentIndex
+						questions={post.map((v) => v.content)}
+						lastIndex={pre.length + auditLength}
+					/>
+				{/if}
+				{#if currentIndex > pre.length + auditLength + post.length - 1}
+					<Button style="color: var(--success); background: var(--success-bg);">Validate</Button>
+				{:else}
+					<Button style="color: var(--error); background: var(--error-bg);">Fail</Button>
+				{/if}
+			{/snippet}
+		</Suspend>
+	</section>
+</article>
