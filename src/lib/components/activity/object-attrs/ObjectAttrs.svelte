@@ -1,18 +1,18 @@
 <script lang="ts">
 	import api from '$lib/api';
-	import CompareArrows from '$lib/assets/svg/compare-arrows.svelte';
-	import Markdown from '$lib/components/ui/Markdown/Markdown.svelte';
 	import Suspend from '$lib/components/shared/Suspend.svelte';
 	import Wordmark from '$lib/components/shared/Wordmark.svelte';
+	import Markdown from '$lib/components/ui/Markdown/Markdown.svelte';
+	import TabsContainer from '$lib/components/ui/Tabs/TabsContainer.svelte';
 	import { ObjectAttrsSchema } from '$lib/types/object/attrs';
 	import ObjectOverview from './ObjectOverview.svelte';
-	import Validation from './validation/Validation.svelte';
+	import TesterValidation from './validation/TesterValidation.svelte';
+	import UserAuditValidation from './validation/UserAuditValidation.svelte';
 	interface Props {
 		name: string;
 		path: string;
 	}
 	const { path, name }: Props = $props();
-	let isValidationVisible = $state(false);
 
 	const getObjectAttrs = async (path: string) => {
 		const attrs = await api.LIBRAONE.object(path);
@@ -20,35 +20,37 @@
 	};
 </script>
 
-{#snippet Title()}
-	<div class="title">
-		<button onclick={() => (isValidationVisible = !isValidationVisible)}>
-			<CompareArrows />
-		</button>
-		<Wordmark>
-			{isValidationVisible ? 'Validation' : 'Subject'}
-		</Wordmark>
-	</div>
-{/snippet}
-
 <Suspend data={getObjectAttrs(path)}>
 	{#snippet children(attrs)}
 		{@const details = attrs.attrs}
 		<article>
 			<ObjectOverview {attrs} />
-			<section class="validation">
-				{#if isValidationVisible}
-					{#each details.validations as validation (validation)}
-						<Validation {validation} fileName="{name}-audit.md" {Title} />
-					{/each}
-				{:else}
+			<TabsContainer>
+				{#snippet NavSubject()}
+					Subject
+				{/snippet}
+				{#snippet Subject()}
 					<Markdown
 						fileName="{name}.md"
 						src={{ url: `https://learn.zone01oujda.ma${details.subject}` }}
-						{Title}
-					/>
-				{/if}
-			</section>
+					>
+						{#snippet Title()}<Wordmark>Subject</Wordmark>{/snippet}
+					</Markdown>
+				{/snippet}
+
+				{#snippet NavValidation()}
+					Validation
+				{/snippet}
+				{#snippet Validation()}
+					{#each details.validations as validation (validation)}
+						{#if validation.type === 'user_audit'}
+							<UserAuditValidation {validation} />
+						{:else if validation.type === 'tester'}
+							<TesterValidation {validation} />
+						{/if}
+					{/each}
+				{/snippet}
+			</TabsContainer>
 		</article>
 	{/snippet}
 </Suspend>
@@ -58,15 +60,5 @@
 		display: flex;
 		flex-direction: column;
 		gap: 20px;
-
-		.validation {
-			width: 100%;
-			margin: auto;
-
-			.title {
-				display: flex;
-				gap: 10px;
-			}
-		}
 	}
 </style>

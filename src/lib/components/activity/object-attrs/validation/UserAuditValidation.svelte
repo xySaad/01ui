@@ -1,20 +1,18 @@
 <script lang="ts">
 	import Suspend from '$lib/components/shared/Suspend.svelte';
+	import Wordmark from '$lib/components/shared/Wordmark.svelte';
 	import Button from '$lib/components/ui/Button.svelte';
 	import { Client } from '$lib/graphql/client';
 	import { GetValidationMarkdownsDocument } from '$lib/graphql/generated';
 	import type { UserAuditValidation } from '$lib/types/object/attrs/validation';
-	import type { Snippet } from 'svelte';
 	import AuditCheckboxList from './AuditCheckboxList.svelte';
 	const QUESTION_PREFIX = '#'.repeat(6);
 	const isQuestion = (line: string) => line.startsWith(QUESTION_PREFIX);
 
 	interface Props {
 		validation: UserAuditValidation;
-		fileName: string;
-		Title: Snippet;
 	}
-	const { validation, fileName, Title }: Props = $props();
+	const { validation }: Props = $props();
 	const { form, preQuestions, postQuestions } = $derived(validation);
 
 	const questionsFromMarkdown = (markdown: string) => {
@@ -49,7 +47,11 @@
 </script>
 
 <article class="validation">
-	{@render Title()}
+	{#if form}
+		<header>
+			<Wordmark>Audit Validation</Wordmark>
+		</header>
+	{/if}
 	<section class="checklist">
 		<Suspend data={getAuditMarkdowns()}>
 			{#snippet children({ pre, audit, post })}
@@ -86,3 +88,16 @@
 		</Suspend>
 	</section>
 </article>
+
+<style>
+	article {
+		.checklist {
+			margin: auto;
+		}
+		header {
+			display: flex;
+			align-items: center;
+			padding: 0 10px;
+		}
+	}
+</style>
