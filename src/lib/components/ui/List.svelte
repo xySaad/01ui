@@ -1,6 +1,6 @@
 <script lang="ts" generics="T extends {id: unknown}">
+	import { ctrlAltF } from '$lib/actions/shortcuts';
 	import FlexContainer from '$lib/components/ui/Flex/FlexContainer.svelte';
-	import FlexItem from '$lib/components/ui/Flex/FlexItem.svelte';
 	import type { ResultItem, SearchResult } from '$lib/workers/search.worker';
 	import SearchWorker from '$lib/workers/search.worker.ts?worker';
 	import { onDestroy, type Snippet } from 'svelte';
@@ -10,7 +10,6 @@
 	import Input from '../ui/Input.svelte';
 	import Badge from './Badge.svelte';
 	import Select from './Select.svelte';
-	import { ctrlAltF } from '$lib/actions/shortcuts';
 	interface Props {
 		items: T[];
 		Item: Snippet<[T]>;
@@ -69,11 +68,13 @@
 				<Badge>{filtredItems.length} result</Badge>
 			</Divider>
 			<FlexContainer minWidth={300} gap="16px" justifyContent="center">
-				{#each filtredItems as item (item.value.id)}
-					<FlexItem>
-						{@render Item(item.value)}
-					</FlexItem>
-				{/each}
+				{#snippet children(Flex)}
+					{#each filtredItems as item (item.value.id)}
+						<Flex>
+							{@render Item(item.value)}
+						</Flex>
+					{/each}
+				{/snippet}
 			</FlexContainer>
 		{/snippet}
 	</Suspend>

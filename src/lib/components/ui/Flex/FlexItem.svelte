@@ -3,18 +3,18 @@
 
 	interface Props {
 		children: Snippet;
+		minWidth: string;
+		maxWidth: string;
+		grow?: boolean;
 	}
-	const { children }: Props = $props();
+	const { children, minWidth, maxWidth, grow = false }: Props = $props();
 </script>
 
-<div>
+<div
+	style="
+		flex: 1;
+		min-width: min({minWidth}, 100%);
+		max-width: {grow ? 'auto' : maxWidth};"
+>
 	{@render children()}
 </div>
-
-<style>
-	div {
-		min-width: min(var(--min-width), 100%);
-		max-width: var(--max-width);
-		flex: 1;
-	}
-</style>
