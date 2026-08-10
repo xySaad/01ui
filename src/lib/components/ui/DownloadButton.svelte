@@ -4,15 +4,18 @@
 	import ActionButton from '$lib/components/ui/ActionButton.svelte';
 
 	type Props = {
-		url: string;
+		data: string;
 		label?: string;
-		fileName?: string;
+		fileName: string;
 	};
 
-	let { url, label, fileName }: Props = $props();
+	let { data, label, fileName }: Props = $props();
 
-	const download = () =>
-		(location.href = `/api/download?url=${encodeURIComponent(url)}&name=${fileName}`);
+	const download = async () => {
+		const blob = new Blob([data], { type: 'text/plain;charset=utf-8' });
+		const url = URL.createObjectURL(blob);
+		location.assign(`/api/download?url=${encodeURIComponent(url)}&name=${fileName}`);
+	};
 </script>
 
 <ActionButton onclick={download}>

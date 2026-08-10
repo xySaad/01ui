@@ -10,7 +10,7 @@
 	const markdownParser = new Marked(markedKatex({ throwOnError: false }));
 
 	type Props = {
-		fileName?: string;
+		fileName: string;
 		Title?: Snippet;
 		Menu?: Snippet;
 		width?: string;
@@ -42,7 +42,7 @@
 		{:else}
 			<Suspend data={markdown}>
 				{#snippet children(source)}
-					<MarkdownMenu bind:maxWidth {fileName} {source} {url} {...options} />
+					<MarkdownMenu bind:maxWidth {fileName} {source} {...options} />
 				{/snippet}
 			</Suspend>
 		{/if}
