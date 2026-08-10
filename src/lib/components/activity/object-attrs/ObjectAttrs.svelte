@@ -44,7 +44,7 @@
 				{#snippet Validation()}
 					{#each details.validations as validation (validation)}
 						{#if validation.type === 'user_audit'}
-							<UserAuditValidation {validation} />
+							<UserAuditValidation {validation} fileName="{name}-audit.md" />
 						{:else if validation.type === 'tester'}
 							<TesterValidation {validation} />
 						{/if}
