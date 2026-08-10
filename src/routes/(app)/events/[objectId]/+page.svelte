@@ -9,7 +9,6 @@
 	import Suspend from '$lib/components/shared/Suspend.svelte';
 	import Badge from '$lib/components/ui/Badge.svelte';
 	import FlexContainer from '$lib/components/ui/Flex/FlexContainer.svelte';
-	import FlexItem from '$lib/components/ui/Flex/FlexItem.svelte';
 	import List from '$lib/components/ui/List.svelte';
 	import TabsContainer from '$lib/components/ui/Tabs/TabsContainer.svelte';
 	import { Client } from '$lib/graphql/client';
@@ -118,11 +117,13 @@
 							<Suspend data={getObjectEvents()}>
 								{#snippet children(events)}
 									<FlexContainer gap="10px" minWidth={300}>
-										{#each events as event (event.id)}
-											<FlexItem>
-												<EventCard {event} objectId={overview.id} />
-											</FlexItem>
-										{/each}
+										{#snippet children(Flex)}
+											{#each events as event (event.id)}
+												<Flex>
+													<EventCard {event} objectId={overview.id} />
+												</Flex>
+											{/each}
+										{/snippet}
 									</FlexContainer>
 								{/snippet}
 							</Suspend>

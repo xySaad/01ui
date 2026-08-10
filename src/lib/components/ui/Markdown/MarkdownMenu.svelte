@@ -1,7 +1,6 @@
 <script module lang="ts">
 	interface Props {
-		fileName?: string;
-		url: string;
+		fileName: string;
 		maxWidth: number;
 		source: string;
 	}
@@ -17,7 +16,7 @@
 		T;
 </script>
 
-<script lang="ts" generics="T extends Record<string, unknown>">
+<script lang="ts" generics="T extends Record<string, unknown> = Record<never, never>">
 	import PopoverMenu from '$lib/components/ui/PopoverMenu.svelte';
 	import CopyButton from '$lib/components/CopyButton.svelte';
 	import Button from '$lib/components/ui/Button.svelte';
@@ -28,7 +27,7 @@
 	import RuleSettings from '$lib/assets/svg/rule-settings.svelte';
 	import type { Snippet } from 'svelte';
 
-	let { fileName, url, maxWidth = $bindable(), source, ...options }: Props & Options<T> = $props();
+	let { fileName, maxWidth = $bindable(), source, ...options }: Props & Options<T> = $props();
 	let isRangeResize = $state(true);
 </script>
 
@@ -38,7 +37,7 @@
 			<MoreVert />
 		{/snippet}
 		{#snippet Download()}
-			<DownloadButton {url} {fileName} />
+			<DownloadButton data={source} {fileName} />
 		{/snippet}
 		{#snippet Copy()}
 			<CopyButton text={source} />

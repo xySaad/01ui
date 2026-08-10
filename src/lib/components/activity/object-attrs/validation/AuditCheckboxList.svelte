@@ -1,6 +1,7 @@
 <script lang="ts">
 	import CardHeader from '$lib/components/Card/CardHeader.svelte';
 	import Card from '$lib/components/ui/Card.svelte';
+	import FlexContainer from '$lib/components/ui/Flex/FlexContainer.svelte';
 	import Markdown from '$lib/components/ui/Markdown/Markdown.svelte';
 	import type { Snippet } from 'svelte';
 
@@ -16,35 +17,44 @@
 {#if currentIndex > lastIndex - 1}
 	<Card>
 		<CardHeader {title} />
-		{#each questions.slice(0, currentIndex - lastIndex + 1) as q, i (q)}
-			<div class="question">
-				<Markdown src={{ raw: q }} width="95%">
-					{#snippet Menu()}<!--  -->{/snippet}
-				</Markdown>
-				<label>
-					<input
-						type="checkbox"
-						onchange={(e) => {
-							if (e.target instanceof HTMLInputElement)
-								currentIndex = e.target.checked ? i + 1 + lastIndex : i + lastIndex;
-						}}
-					/>
-				</label>
-			</div>
-		{/each}
+		<div class="checkboxList">
+			{#each questions.slice(0, currentIndex - lastIndex + 1) as q, i (q)}
+				<FlexContainer gap="10px" minWidth={600}>
+					{#snippet children(Flex)}
+						<Flex grow={true}>
+							<Markdown src={{ raw: q }}>
+								{#snippet Menu()}<!--  -->{/snippet}
+							</Markdown>
+						</Flex>
+						<Flex overrideMinWidth={40}>
+							<label>
+								<input
+									type="checkbox"
+									onchange={(e) => {
+										if (e.target instanceof HTMLInputElement)
+											currentIndex = e.target.checked ? i + 1 + lastIndex : i + lastIndex;
+									}}
+								/>
+							</label>
+						</Flex>
+					{/snippet}
+				</FlexContainer>
+			{/each}
+		</div>
 	</Card>
 {/if}
 
-<style>
-	.question {
+<style lang="scss">
+	.checkboxList {
 		display: flex;
-		justify-content: space-between;
+		flex-direction: column;
 		gap: 10px;
+		width: 100%;
+
 		label {
-			padding: 5px;
 			display: flex;
-			min-width: 0;
-			flex: 1;
+			min-height: 40px;
+			height: 100%;
 			align-items: center;
 			justify-content: center;
 			cursor: pointer;

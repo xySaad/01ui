@@ -1,7 +1,6 @@
 <script lang="ts" generics="T extends Record<string, unknown>">
 	import type { Snippet } from 'svelte';
 	import FlexContainer from '../Flex/FlexContainer.svelte';
-	import FlexItem from '../Flex/FlexItem.svelte';
 	const objectKeys = <T extends object>(o: T) => Object.keys(o) as (keyof T)[];
 
 	type Props = {
@@ -35,14 +34,16 @@
 
 <nav>
 	<FlexContainer minWidth={200} gap="5px">
-		{#each tabKeys as key (key)}
-			{@const active = activeNav === key}
-			<FlexItem>
-				<button class:active onclick={() => (activeNav = key)}>
-					{@render navSnippets[`${Prefix}${key}`]()}
-				</button>
-			</FlexItem>
-		{/each}
+		{#snippet children(Flex)}
+			{#each tabKeys as key (key)}
+				{@const active = activeNav === key}
+				<Flex>
+					<button class:active onclick={() => (activeNav = key)}>
+						{@render navSnippets[`${Prefix}${key}`]()}
+					</button>
+				</Flex>
+			{/each}
+		{/snippet}
 	</FlexContainer>
 </nav>
 

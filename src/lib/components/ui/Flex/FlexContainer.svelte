@@ -1,54 +1,67 @@
 <script lang="ts">
-	import { type Snippet } from 'svelte';
+	import { type Snippet, type Component } from 'svelte';
+	import FlexItem from './FlexItem.svelte';
+
+	type FlexComponent = Component<{ children: Snippet; grow?: boolean; overrideMinWidth?: number }>;
 
 	interface Props {
-		children: Snippet;
+		children: Snippet<[FlexComponent]>;
 		minWidth: number;
 		gap: string;
 		justifyContent?: string;
 	}
-	const { children, minWidth, gap, justifyContent }: Props = $props();
+
+	const { children, minWidth: inputMinWidth, gap, justifyContent }: Props = $props();
+
 	let childrenCount = $state(0);
-	function countChildren(node: HTMLElement) {
-		childrenCount = node.childElementCount;
-		const observer = new MutationObserver(() => (childrenCount = node.childElementCount));
-		observer.observe(node, { childList: true });
-		return {
-			destroy() {
-				observer.disconnect();
+	let totalMinWidth = $state(0);
+
+	const calculateSize = (actualMinWidth: number) => {
+		const totalGap = `calc(${gap} * ${childrenCount})`;
+		const rawThreshold = totalMinWidth;
+		const threshold = `${rawThreshold}px`;
+
+		const diff = `calc(${threshold} + ${totalGap} - 100%)`;
+		const sign = `clamp(-1px, ${diff}, 1px)`;
+
+		const calculatedMinWidth = `${actualMinWidth}px`;
+		const maxWidth = `clamp(
+            ${calculatedMinWidth},
+            calc(${sign} * ${rawThreshold} + ${totalGap}),
+            100%
+        )`;
+
+		return { minWidth: calculatedMinWidth, maxWidth: maxWidth };
+	};
+
+	const Flex: FlexComponent = (internals, props) => {
+		const actualMinWidth = props.overrideMinWidth ?? inputMinWidth;
+		childrenCount += 1;
+		totalMinWidth += actualMinWidth;
+
+		return FlexItem(internals, {
+			children: props.children,
+			get minWidth() {
+				return calculateSize(actualMinWidth).minWidth;
+			},
+			get maxWidth() {
+				return calculateSize(actualMinWidth).maxWidth;
+			},
+			get grow() {
+				return props.grow;
 			}
-		};
-	}
+		});
+	};
 </script>
 
-<div
-	style:justify-content={justifyContent}
-	style:--raw-width={minWidth}
-	style:--gap={gap}
-	use:countChildren
-	style:--children-count={childrenCount}
->
-	{@render children()}
+<div style:gap style:justify-content={justifyContent}>
+	{@render children(Flex)}
 </div>
 
 <style>
 	div {
 		display: flex;
-		gap: var(--gap);
 		flex-wrap: wrap;
 		width: 100%;
-
-		--total-gap: calc(var(--gap) * var(--children-count));
-		--raw-threshold: calc(var(--raw-width) * var(--children-count));
-		--threshold: calc(var(--raw-threshold) * 1px);
-		--diff: calc(var(--threshold) + var(--total-gap) - 100%);
-		--sign: clamp(-1px, var(--diff), 1px);
-
-		--min-width: calc(var(--raw-width) * 1px);
-		--max-width: clamp(
-			var(--min-width),
-			calc(var(--sign) * var(--raw-threshold) + var(--total-gap)),
-			100%
-		);
 	}
 </style>

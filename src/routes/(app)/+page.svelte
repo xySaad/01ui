@@ -6,7 +6,6 @@
 	import Leaderboard from '$lib/assets/svg/leaderboard.svelte';
 	import Card from '$lib/components/ui/Card.svelte';
 	import FlexContainer from '$lib/components/ui/Flex/FlexContainer.svelte';
-	import FlexItem from '$lib/components/ui/Flex/FlexItem.svelte';
 	import type { Component } from 'svelte';
 
 	interface Link {
@@ -30,18 +29,20 @@
 
 <nav class="links">
 	<FlexContainer gap="10px" minWidth={250} justifyContent="center">
-		{#each links as link (link)}
-			<FlexItem>
-				<a href={resolve(link.href)}>
-					<Card>
-						<div class="wrap">
-							<link.icon />
-							<p>{link.text}</p>
-						</div>
-					</Card>
-				</a>
-			</FlexItem>
-		{/each}
+		{#snippet children(Flex)}
+			{#each links as link (link)}
+				<Flex>
+					<a href={resolve(link.href)}>
+						<Card>
+							<div class="wrap">
+								<link.icon />
+								<p>{link.text}</p>
+							</div>
+						</Card>
+					</a>
+				</Flex>
+			{/each}
+		{/snippet}
 	</FlexContainer>
 </nav>
 
