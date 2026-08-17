@@ -18,7 +18,7 @@
 	<Card>
 		<CardHeader {title} />
 		<div class="checkboxList">
-			{#each questions.slice(0, currentIndex - lastIndex + 1) as q, i (q)}
+			{#each questions.slice(0, currentIndex - lastIndex + 1) as q, i (i)}
 				<FlexContainer gap="10px" minWidth={600}>
 					{#snippet children(Flex)}
 						<Flex grow={true}>
